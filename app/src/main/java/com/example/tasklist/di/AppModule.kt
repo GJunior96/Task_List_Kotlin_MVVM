@@ -5,6 +5,7 @@ import androidx.room.Room
 import com.example.tasklist.feature_task.data.data_source.TaskDataBase
 import com.example.tasklist.feature_task.data.repository.TaskRepositoryImp
 import com.example.tasklist.feature_task.domain.repository.TaskRepository
+import com.example.tasklist.feature_task.domain.use_case.AddTask
 import com.example.tasklist.feature_task.domain.use_case.DeleteTask
 import com.example.tasklist.feature_task.domain.use_case.GetTasks
 import com.example.tasklist.feature_task.domain.use_case.TaskUseCases
@@ -39,7 +40,8 @@ object AppModule {
     fun provideTaskUseCases(repository: TaskRepository): TaskUseCases {
         return TaskUseCases(
             getTasks = GetTasks(repository),
-            deleteTask = DeleteTask(repository)
+            deleteTask = DeleteTask(repository),
+            addTask = AddTask(repository)
         )
     }
 }

@@ -12,9 +12,9 @@ class GetTasks(
 ) {
     operator fun invoke(
         taskOrder: TaskOrder = TaskOrder.Hour(OrderType.Ascending),
-        taskDate: Task
+        taskDate: String
     ): Flow<List<Task>>? {
-        return repository.getTasks(taskDate.date)?.map { tasks ->
+        return repository.getTasks(taskDate)?.map { tasks ->
             when(taskOrder.orderType) {
                 is OrderType.Ascending -> {
                     when(taskOrder) {
