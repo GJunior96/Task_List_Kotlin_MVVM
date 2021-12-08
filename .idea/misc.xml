@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/kenobi/AndroidStudioProjects/TaskList/app/src/main/res/drawable/ds_sleeping_sloth.xml" value="0.2833333333333333" />
+        <entry key="..\:/Users/kenobi/AndroidStudioProjects/TaskList/app/src/main/res/drawable/ic_back_arrow.xml" value="0.2833333333333333" />
+        <entry key="..\:/Users/kenobi/AndroidStudioProjects/TaskList/app/src/main/res/drawable/ic_sloth.xml" value="0.2833333333333333" />
         <entry key="..\:/Users/kenobi/AndroidStudioProjects/TaskList/app/src/main/res/layout/activity_main.xml" value="0.25785207700101315" />
       </map>
     </option>

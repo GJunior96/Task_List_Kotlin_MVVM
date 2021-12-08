@@ -1,17 +1,24 @@
 package com.example.tasklist.feature_task.presentation.tasks
 
 import android.os.Build
+import android.util.Log
+import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.tasklist.feature_task.domain.model.InvalidTaskException
 import com.example.tasklist.feature_task.domain.model.Task
 import com.example.tasklist.feature_task.domain.use_case.TaskUseCases
 import com.example.tasklist.feature_task.domain.util.OrderType
 import com.example.tasklist.feature_task.domain.util.TaskOrder
 import com.example.tasklist.feature_task.domain.util.TasksEvent
+import com.example.tasklist.feature_task.presentation.add_edit_task.AddEditTaskViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -23,7 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
-    private val taskUseCases: TaskUseCases
+    private val taskUseCases: TaskUseCases,
 ) : ViewModel() {
 
     private val _state = mutableStateOf(TasksState())
@@ -33,8 +40,13 @@ class TasksViewModel @Inject constructor(
 
     private var getTasksJob: Job? = null
 
+    var date: String = getMonthAndDay()
+
+    private val _eventFlow = MutableSharedFlow<AddEditTaskViewModel.UiEvent>()
+    val eventFlow = _eventFlow.asSharedFlow()
+
     init {
-        getTasks(TaskOrder.Hour(OrderType.Ascending), getDate())
+        getTasks(TaskOrder.Hour(OrderType.Ascending))
     }
 
     fun onEvent(event: TasksEvent) {
@@ -45,12 +57,38 @@ class TasksViewModel @Inject constructor(
                 ) {
                     return
                 }
-                getTasks(event.taskOrder, event.task.date)
+                getTasks(event.taskOrder)
             }
             is TasksEvent.DeleteTask -> {
                 viewModelScope.launch {
                     taskUseCases.deleteTask(event.task)
                     recentlyDeleteTask = event.task
+                }
+            }
+            is TasksEvent.ChangeTaskState -> {
+                viewModelScope.launch {
+                    taskUseCases.getTask(event.value).also {
+                        if (it?.state == "todo") {
+                            try {
+                                taskUseCases.addTask(
+                                    Task(
+                                        content = it.content,
+                                        date = it.date,
+                                        hour = it.hour,
+                                        state = "done",
+                                        id = it.id
+                                    )
+                                )
+                                _eventFlow.emit(AddEditTaskViewModel.UiEvent.SaveTask)
+                            } catch (e: InvalidTaskException) {
+                                _eventFlow.emit(
+                                    AddEditTaskViewModel.UiEvent.ShowSnackbar(
+                                        message = e.message ?: "Couldn't change task state."
+                                    )
+                                )
+                            }
+                        }
+                    }
                 }
             }
             is TasksEvent.RestoreTask -> {
@@ -64,12 +102,15 @@ class TasksViewModel @Inject constructor(
                     isOrderSectionVisible = !state.value.isOrderSectionVisible
                 )
             }
+            is TasksEvent.ChangeDay -> {
+                getTasks(TaskOrder.Hour(OrderType.Ascending))
+            }
         }
     }
 
-    private fun getTasks(taskOrder: TaskOrder, taskDate: String) {
+    private fun getTasks(taskOrder: TaskOrder) {
         getTasksJob?.cancel()
-        getTasksJob = taskUseCases.getTasks(taskOrder, taskDate)
+        getTasksJob = taskUseCases.getTasks(taskDate = date, taskOrder = taskOrder)
             ?.onEach { tasks ->
                 _state.value = state.value.copy(
                     tasks = tasks,
@@ -79,15 +120,35 @@ class TasksViewModel @Inject constructor(
             ?.launchIn(viewModelScope)
     }
 
-    private fun getDate(): String {
+    private fun getMonthAndDay(): String {
         return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val current = LocalDateTime.now()
             val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy")
             current.format(formatter)
         } else {
-            val date = Date()
-            val formatter = SimpleDateFormat("dd/MM/yyyy")
-            formatter.format(date)
+            val date = Calendar.getInstance()
+            val formatter = SimpleDateFormat("dd/MM")
+            formatter.format(date.time)
         }
+    }
+
+    fun fillDaysList(month: Int): MutableList<WeekDay> {
+        val formatter = SimpleDateFormat("EEE")
+        val list = mutableListOf<WeekDay>()
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.MONTH, month)
+
+        list.add(WeekDay("", -1, mutableStateOf(false)))
+        list.add(WeekDay("", 0, mutableStateOf(false)))
+
+        for (i in 0 until calendar.getActualMaximum(Calendar.DAY_OF_MONTH)) {
+            calendar.set(Calendar.DAY_OF_MONTH, i + 1)
+            list.add(WeekDay(formatter.format(calendar.time), i + 1, mutableStateOf(false)))
+        }
+
+        list.add(WeekDay("", -2, mutableStateOf(false)))
+        list.add(WeekDay("", -3, mutableStateOf(false)))
+
+        return list
     }
 }

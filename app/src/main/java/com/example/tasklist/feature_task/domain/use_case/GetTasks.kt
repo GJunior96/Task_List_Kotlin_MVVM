@@ -1,5 +1,6 @@
 package com.example.tasklist.feature_task.domain.use_case
 
+import android.util.Log
 import com.example.tasklist.feature_task.domain.model.Task
 import com.example.tasklist.feature_task.domain.repository.TaskRepository
 import com.example.tasklist.feature_task.domain.util.OrderType
@@ -15,17 +16,18 @@ class GetTasks(
         taskDate: String
     ): Flow<List<Task>>? {
         return repository.getTasks(taskDate)?.map { tasks ->
+
             when(taskOrder.orderType) {
                 is OrderType.Ascending -> {
                     when(taskOrder) {
-                        is TaskOrder.Description -> tasks.sortedBy { it.content }
+                        is TaskOrder.Description -> tasks.sortedBy { it.content.lowercase() }
                         is TaskOrder.Hour -> tasks.sortedBy { it.hour }
                         is TaskOrder.State -> tasks.sortedBy { it.state }
                     }
                 }
                 is OrderType.Descending -> {
                     when(taskOrder) {
-                        is TaskOrder.Description -> tasks.sortedByDescending { it.content }
+                        is TaskOrder.Description -> tasks.sortedByDescending { it.content.lowercase() }
                         is TaskOrder.Hour -> tasks.sortedByDescending { it.hour }
                         is TaskOrder.State -> tasks.sortedByDescending { it.state }
                     }

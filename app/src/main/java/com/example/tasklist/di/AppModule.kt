@@ -5,10 +5,7 @@ import androidx.room.Room
 import com.example.tasklist.feature_task.data.data_source.TaskDataBase
 import com.example.tasklist.feature_task.data.repository.TaskRepositoryImp
 import com.example.tasklist.feature_task.domain.repository.TaskRepository
-import com.example.tasklist.feature_task.domain.use_case.AddTask
-import com.example.tasklist.feature_task.domain.use_case.DeleteTask
-import com.example.tasklist.feature_task.domain.use_case.GetTasks
-import com.example.tasklist.feature_task.domain.use_case.TaskUseCases
+import com.example.tasklist.feature_task.domain.use_case.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -41,7 +38,8 @@ object AppModule {
         return TaskUseCases(
             getTasks = GetTasks(repository),
             deleteTask = DeleteTask(repository),
-            addTask = AddTask(repository)
+            addTask = AddTask(repository),
+            getTask = GetTask(repository)
         )
     }
 }
