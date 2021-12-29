@@ -10,15 +10,16 @@ import androidx.compose.material.TextButton
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
+import com.example.tasklist.R
 
 @Composable
-fun CustomButtomPicker(
+fun CustomButtonPicker(
     text: String,
     label: String = "",
     textStyle: TextStyle = TextStyle(),
@@ -59,15 +60,20 @@ fun CustomButtomPicker(
                 Text(
                     modifier = Modifier.padding(8.dp),
                     text = text,
-                    color = MaterialTheme.colors.background,
+                    color = if (enabled) {
+                        if (isNewTask)
+                            MaterialTheme.colors.primary else MaterialTheme.colors.background
+                    } else MaterialTheme.colors.secondary,
                     style = textStyle
                 )
                 Icon(
                     modifier = Modifier.align(alignment = CenterVertically),
                     imageVector = Icons.Filled.ArrowDropDown,
-                    tint = if (isNewTask)
-                        MaterialTheme.colors.primary else MaterialTheme.colors.background,
-                    contentDescription = "Dropdown Arrow"
+                    tint = if (enabled) {
+                        if (isNewTask)
+                            MaterialTheme.colors.primary else MaterialTheme.colors.background
+                    } else MaterialTheme.colors.secondary,
+                    contentDescription = stringResource(R.string.dropdown_arrow_description)
                 )
             }
         }

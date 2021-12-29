@@ -1,7 +1,6 @@
 package com.example.tasklist.feature_task.presentation.tasks.components
 
-import android.os.Bundle
-import android.util.Log
+import android.content.Context.MODE_PRIVATE
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -12,25 +11,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import androidx.core.os.bundleOf
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.SavedStateViewModelFactory
-import androidx.navigation.NavController
+import com.example.tasklist.R
 import com.example.tasklist.feature_task.domain.model.Task
 import com.example.tasklist.feature_task.presentation.add_edit_task.AddEditTaskEvent
 import com.example.tasklist.feature_task.presentation.add_edit_task.AddEditTaskViewModel
-import com.example.tasklist.feature_task.presentation.add_edit_task.TaskTextFieldState
-import com.example.tasklist.feature_task.presentation.add_edit_task.components.CustomButtomPicker
+import com.example.tasklist.feature_task.presentation.add_edit_task.components.CustomButtonPicker
 import com.example.tasklist.feature_task.presentation.add_edit_task.components.CustomTextField
+import com.example.tasklist.feature_task.presentation.settings.ALLOW_TO_EDIT_TASK_DATE
+import com.example.tasklist.feature_task.presentation.settings.ALLOW_TO_EDIT_TASK_HOUR
+import com.example.tasklist.feature_task.presentation.settings.SHARED_PREFS
+import com.example.tasklist.feature_task.presentation.util.DatePicker
 import com.example.tasklist.feature_task.presentation.util.TimePicker
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
+import com.example.tasklist.feature_task.presentation.util.dayAndMonth
 
 @ExperimentalComposeUiApi
 @Composable
@@ -38,9 +36,15 @@ fun EditTaskView(
     task: MutableState<Task?>,
     viewModel: AddEditTaskViewModel = hiltViewModel(),
     onDismissRequest: () -> Unit,
-    onClick: () -> Unit
 ) {
-    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+    val allowToEditTaskDate = remember {
+        mutableStateOf(sharedPref.getBoolean(ALLOW_TO_EDIT_TASK_DATE, false))
+    }
+    val allowToEditTaskHour = remember {
+        mutableStateOf(sharedPref.getBoolean(ALLOW_TO_EDIT_TASK_HOUR, true))
+    }
 
     val description = remember { mutableStateOf(task.value?.content) }
     val date = remember { mutableStateOf(task.value?.date) }
@@ -54,15 +58,14 @@ fun EditTaskView(
     val expandedDateDialog = remember { mutableStateOf(false) }
     val expandedTimeDialog = remember { mutableStateOf(false) }
 
-    val dateFormatter = SimpleDateFormat("dd/MM")
-
     if(expandedDateDialog.value) {
         DatePicker(
             onDateSelected = {
-                viewModel.onEvent(AddEditTaskEvent.EnteredDate(dateFormatter.format(it.time)))
-                date.value = dateFormatter.format(it.time)
+                viewModel.onEvent(AddEditTaskEvent.EnteredDate(it.time.dayAndMonth()))
+                date.value = it.time.dayAndMonth()
             },
-            onDismissRequest = { expandedDateDialog.value = false }
+            onDismissRequest = { expandedDateDialog.value = false },
+            isNewTask = false
         )
     }
 
@@ -92,7 +95,7 @@ fun EditTaskView(
                     .wrapContentSize()
                     .padding(horizontal = 30.dp)
                     .clip(MaterialTheme.shapes.large)
-                    .clickable {  },
+                    .clickable { },
                 shape = MaterialTheme.shapes.large,
                 backgroundColor = MaterialTheme.colors.primary
             ) {
@@ -100,10 +103,8 @@ fun EditTaskView(
                     modifier = Modifier.padding(8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Row() {
-                        Text(text = "Edit Task")
-                    }
-                    Row() {
+                    Row { Text(text = stringResource(R.string.edit_task)) }
+                    Row {
                         CustomTextField(
                             text = description.value ?: "",
                             hint = description.value ?: "",
@@ -114,42 +115,28 @@ fun EditTaskView(
                         )
                     }
 
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .background(Color.Yellow)
-                    ) {
-                        Column(
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            CustomButtomPicker(
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            CustomButtonPicker(
                                 text = date.value ?: "",
                                 textStyle = MaterialTheme.typography.h3,
-                                enabled = true,
+                                enabled = allowToEditTaskDate.value,
                                 isNewTask = false,
                                 onClick = { expandedDateDialog.value = true }
                             )
                         }
-                        Column(
-                            modifier = Modifier
-                                .weight(1f)
-                                .background(Color.Red)
-                        ) {
-                            CustomButtomPicker(
+                        Column(modifier = Modifier.weight(1f)) {
+                            CustomButtonPicker(
                                 text = hour.value ?: "",
                                 textStyle = MaterialTheme.typography.h3,
-                                enabled = true,
+                                enabled = allowToEditTaskHour.value,
                                 isNewTask = false,
-                                onClick = {
-                                    expandedTimeDialog.value = true
-                                }
+                                onClick = { expandedTimeDialog.value = true }
                             )
                         }
                     }
 
-                    Row(
-                        modifier = Modifier.padding(vertical = 8.dp)
-                    ) {
+                    Row(modifier = Modifier.padding(vertical = 8.dp)) {
                         Column(
                             modifier = Modifier
                                 .padding(horizontal = 8.dp)
@@ -174,7 +161,7 @@ fun EditTaskView(
                             ) {
                                 Text(
                                     modifier = Modifier.padding(8.dp),
-                                    text = "Save",
+                                    text = stringResource(R.string.save),
                                     color = MaterialTheme.colors.primary,
                                     style = MaterialTheme.typography.h3
                                 )
@@ -193,7 +180,7 @@ fun EditTaskView(
                             ) {
                                 Text(
                                     modifier = Modifier.padding(8.dp),
-                                    text = "Cancel",
+                                    text = stringResource(R.string.cancel),
                                     color = MaterialTheme.colors.background,
                                     style = MaterialTheme.typography.h3
                                 )

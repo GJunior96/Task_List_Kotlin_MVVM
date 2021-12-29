@@ -1,8 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="CalendarViewCustom" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
-        <item name="colorAccent">@color/design_default_color_primary</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSurface">@color/black</item>
+    <!--Picker Purple-->
+    <style name="CustomPickerViewPurple" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/purple_primary</item>
+        <item name="colorPrimaryDark">@color/purple_primary</item>
+        <item name="colorAccent">@color/purple_primary</item>
+        <item name="colorOnPrimary">@color/purple_tertiary</item>
+
+        <item name="android:textColorPrimary">@color/purple_primary</item>
+        <item name="android:textColorSecondary">@color/purple_secondary</item>
+        <item name="android:textColorPrimaryInverse">@color/purple_tertiary</item>
+        <item name="android:textColorHighlight">@color/purple_tertiary</item>
     </style>
+
+    <!--Picker Blue-->
+    <style name="CustomPickerViewBlue" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/blue_primary</item>
+        <item name="colorPrimaryDark">@color/blue_primary</item>
+        <item name="colorAccent">@color/blue_primary</item>
+        <item name="colorOnPrimary">@color/blue_tertiary</item>
+
+        <item name="android:textColorPrimary">@color/blue_primary</item>
+        <item name="android:textColorSecondary">@color/blue_secondary</item>
+        <item name="android:textColorPrimaryInverse">@color/blue_tertiary</item>
+        <item name="android:textColorHighlight">@color/blue_tertiary</item>
+    </style>
+
+    <!--Picker Black-->
+    <style name="CustomPickerViewBlack" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/black_primary</item>
+        <item name="colorPrimaryDark">@color/black_primary</item>
+        <item name="colorAccent">@color/black_tertiary</item>
+        <item name="colorOnPrimary">@color/black_secondary</item>
+
+        <item name="android:textColorPrimary">@color/black_secondary</item>
+        <item name="android:textColorSecondary">@color/black_secondary</item>
+        <item name="android:textColorPrimaryInverse">@color/black_primary</item>
+        <item name="android:textColorHighlight">@color/black_primary</item>
+    </style>
+
+    <!--Picker White-->
+    <style name="CustomPickerViewWhite" parent="ThemeOverlay.MaterialComponents.MaterialCalendar">
+        <item name="colorPrimary">@color/white_primary</item>
+        <item name="colorPrimaryDark">@color/white_primary</item>
+        <item name="colorAccent">@color/white_primary</item>
+        <item name="colorOnPrimary">@color/white_tertiary</item>
+
+        <item name="android:textColorPrimary">@color/white_primary</item>
+        <item name="android:textColorSecondary">@color/white_secondary</item>
+        <item name="android:textColorPrimaryInverse">@color/white_tertiary</item>
+        <item name="android:textColorHighlight">@color/white_tertiary</item>
+    </style>
+
 </resources>

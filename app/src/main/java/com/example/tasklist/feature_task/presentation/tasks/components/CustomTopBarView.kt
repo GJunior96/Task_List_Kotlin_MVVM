@@ -16,10 +16,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.tasklist.R
+import com.example.tasklist.feature_task.presentation.util.Screen
 
 @Composable
 fun CustomTopBarView(navController: NavController, title: String) {
@@ -32,15 +34,11 @@ fun CustomTopBarView(navController: NavController, title: String) {
     ) {
         Box(Modifier.wrapContentHeight()) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Blue),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
 
-                Column(modifier = Modifier
-                    .wrapContentSize()
-                    .background(Color.Red)) {
+                Column(modifier = Modifier.wrapContentSize()) {
                     CompositionLocalProvider(
                         LocalContentAlpha provides ContentAlpha.high,
                     ) {
@@ -51,16 +49,12 @@ fun CustomTopBarView(navController: NavController, title: String) {
                             Icon(
                                 painter = painterResource(id = R.drawable.ic_back_arrow),
                                 tint = MaterialTheme.colors.onBackground,
-                                contentDescription = "Back"
+                                contentDescription = stringResource(R.string.back_icon)
                             )
                         }
                     }
                 }
-                Column(
-                    Modifier
-                        .wrapContentSize()
-                        .background(Color.Green)
-                ) {
+                Column(Modifier.wrapContentSize()) {
                     ProvideTextStyle(value = MaterialTheme.typography.h1) {
                         CompositionLocalProvider(
                             LocalContentAlpha provides ContentAlpha.high,
@@ -75,11 +69,7 @@ fun CustomTopBarView(navController: NavController, title: String) {
                         }
                     }
                 }
-                Box(
-                    modifier = Modifier
-                        .background(Color.Red)
-                        .wrapContentSize(Alignment.TopEnd)
-                ) {
+                Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
                     CompositionLocalProvider(
                         LocalContentAlpha provides ContentAlpha.high,
                     ) {
@@ -89,10 +79,12 @@ fun CustomTopBarView(navController: NavController, title: String) {
                             Icon(
                                 imageVector = Icons.Filled.MoreVert,
                                 tint = MaterialTheme.colors.onBackground,
-                                contentDescription = "More options"
+                                contentDescription = stringResource(R.string.more_options)
                             )
                         }
-                        MaterialTheme(shapes = MaterialTheme.shapes.copy(medium = MaterialTheme.shapes.large)) {
+                        MaterialTheme(shapes = MaterialTheme.shapes.copy(
+                            medium = MaterialTheme.shapes.large
+                        )) {
                             DropdownMenu(
                                 expanded = expanded.value,
                                 onDismissRequest = { expanded.value = false },
@@ -103,13 +95,17 @@ fun CustomTopBarView(navController: NavController, title: String) {
                                 DropdownMenuItem(onClick = {
                                     expanded.value = false
                                 }) {
-                                    Text(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        text = "Settings",
-                                        style = MaterialTheme.typography.h3,
-                                        color = MaterialTheme.colors.surface,
-                                        textAlign = TextAlign.Center
-                                    )
+                                    TextButton(onClick = {
+                                        navController.navigate(Screen.SettingsScreen.route)
+                                    }) {
+                                        Text(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            text = stringResource(R.string.settings),
+                                            style = MaterialTheme.typography.h3,
+                                            color = MaterialTheme.colors.surface,
+                                            textAlign = TextAlign.Center
+                                        )
+                                    }
                                 }
                                 Divider(
                                     modifier = Modifier.padding(horizontal = 30.dp),
@@ -121,7 +117,7 @@ fun CustomTopBarView(navController: NavController, title: String) {
                                 }) {
                                     Text(
                                         modifier = Modifier.fillMaxWidth(),
-                                        text = "Help",
+                                        text = stringResource(R.string.help),
                                         style = MaterialTheme.typography.h3,
                                         color = MaterialTheme.colors.surface,
                                         textAlign = TextAlign.Center

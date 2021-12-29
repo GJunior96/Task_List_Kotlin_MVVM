@@ -1,3 +1,48 @@
 <resources>
     <string name="app_name">Task List</string>
+
+    <!--Strings Task Screen-->
+    <string name="task_screen_toolbar_title">Daily Tasks</string>
+    <string name="floating_button_description">Add Task</string>
+    <string name="empty_tasks_state">Ops! You don\'t have\nany tasks for today.</string>
+    <string name="sleeping_sloth_drawing">Sleeping Sloth Drawing</string>
+
+    <!--Strings Task Options Menu-->
+    <string name="edit_task">Edit Task</string>
+    <string name="delete_task">Delete Task</string>
+    <string name="set_as_done">Set As Done</string>
+
+    <!--Strings Edit Task View-->
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
+    <!--Strings Date Picker-->
+    <string name="select_date">Select date</string>
+    <string name="ok">OK</string>
+
+    <!--Strings Time Picker-->
+    <string name="select_time">Select time</string>
+
+    <!--Strings Add Task Screen-->
+    <string name="add_task_screen_toolbar_title">New task</string>
+    <string name="task_description">Task Description</string>
+    <string name="task_date">Task Date</string>
+    <string name="task_hour">Task Hour</string>
+    <string name="add_new_task">Add New Task</string>
+
+    <!--Strings Add Task Screen-->
+    <string name="settings_screen_toolbar_title">Settings</string>
+    <string name="show_completed_tasks">Show completed tasks</string>
+    <string name="allow_to_edit_task_date">Allow to edit task date</string>
+    <string name="allow_to_edit_task_hour">Allow to edit task hour</string>
+    <string name="choose_the_theme">Choose the theme</string>
+
+    <!--Strings Utils-->
+    <string name="dropdown_arrow_description">Dropdown Arrow</string>
+    <string name="sort_icon">Sort Icon</string>
+    <string name="back_icon">Back Icon</string>
+    <string name="more_options">More Options</string>
+    <string name="settings">Settings</string>
+    <string name="help">Help</string>
+
 </resources>

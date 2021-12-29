@@ -1,6 +1,7 @@
-package com.example.tasklist.feature_task.domain.util
+package com.example.tasklist.feature_task.presentation.tasks
 
 import com.example.tasklist.feature_task.domain.model.Task
+import com.example.tasklist.feature_task.domain.util.TaskOrder
 
 sealed class TasksEvent {
     data class Order(val taskOrder: TaskOrder): TasksEvent()

@@ -5,7 +5,9 @@ import kotlinx.coroutines.flow.Flow
 
 interface TaskRepository {
 
-    fun getTasks(date: String): Flow<List<Task>>?
+    fun getAllTasks(): Flow<List<Task>>
+
+    fun getTasksByDate(date: String): Flow<List<Task>>?
 
     suspend fun getTaskById(id: Int): Task?
 

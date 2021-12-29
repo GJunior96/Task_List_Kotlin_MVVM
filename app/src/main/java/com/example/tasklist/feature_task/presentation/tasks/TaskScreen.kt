@@ -1,23 +1,16 @@
 package com.example.tasklist.feature_task.presentation.tasks
 
-import android.app.Dialog
-import android.util.DisplayMetrics
-import android.util.Log
-import android.view.Window
-import android.view.WindowManager
+import android.content.Context.MODE_PRIVATE
 import androidx.compose.animation.*
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -28,34 +21,26 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.TransformOrigin
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign.Companion.Center
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavController
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavArgument
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.navArgument
-import androidx.navigation.navOptions
 import com.example.tasklist.R
 import com.example.tasklist.feature_task.domain.model.Task
-import com.example.tasklist.feature_task.domain.util.TasksEvent
-import com.example.tasklist.feature_task.presentation.add_edit_task.AddEditTaskEvent
+import com.example.tasklist.feature_task.presentation.settings.SELECTED_THEME
+import com.example.tasklist.feature_task.presentation.settings.SHARED_PREFS
+import com.example.tasklist.feature_task.presentation.settings.SHOW_COMPLETED_TASKS
 import com.example.tasklist.feature_task.presentation.tasks.components.*
-import com.example.tasklist.feature_task.presentation.ui.theme.TaskListAppTheme
+import com.example.tasklist.feature_task.presentation.util.DatePicker
 import com.example.tasklist.feature_task.presentation.util.Screen
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.tasklist.feature_task.presentation.util.dayAndMonth
+import com.example.tasklist.feature_task.presentation.util.month
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.math.absoluteValue
 
 @ExperimentalComposeUiApi
 @ExperimentalAnimationApi
@@ -63,19 +48,25 @@ import kotlin.math.absoluteValue
 fun TaskScreen(
     navController: NavController,
     viewModel: TasksViewModel = hiltViewModel(),
-    screenWidthDp: Float,
-    screenWidthPx: Int
 ) {
+    val configs = LocalConfiguration.current
+    val density = configs.densityDpi
+    val screenWidthDp = configs.screenWidthDp.dp
+    val screenWidthPx = ((screenWidthDp.value * density) / 160)
+
+    val context = LocalContext.current
+    val sharedPref = context.getSharedPreferences(SHARED_PREFS, MODE_PRIVATE)
+
     val state = viewModel.state.value
+    val showCompletedTasks =
+        remember { mutableStateOf(sharedPref.getBoolean(SHOW_COMPLETED_TASKS, true)) }
     val scaffoldState = rememberScaffoldState()
     val scope = rememberCoroutineScope()
 
-    val patternFormatDate = SimpleDateFormat("dd/MM")
-    val patternFormatMonth = SimpleDateFormat("MMMM")
-    var calendar = Calendar.getInstance()
-    var expandedCalendarDialog = remember { mutableStateOf(false) }
-    var month = remember { mutableStateOf(calendar) }
-    var listDays =
+    val calendar = Calendar.getInstance()
+    val expandedCalendarDialog = remember { mutableStateOf(false) }
+    val month = remember { mutableStateOf(calendar) }
+    val listDays =
         remember { mutableStateOf(viewModel.fillDaysList(month.value.get(Calendar.MONTH))) }
 
     val listState = rememberLazyListState()
@@ -85,9 +76,6 @@ fun TaskScreen(
     val expandedTaskMenu = remember { mutableStateOf(false) }
     val expandedEditTask = remember { mutableStateOf(false) }
     val pickedTaskId = remember { mutableStateOf<Task?>(null) }
-
-
-    screenWidthDp.dp
 
     if (expandedTaskMenu.value) {
         TaskOptionsMenu(
@@ -117,8 +105,7 @@ fun TaskScreen(
     if (expandedEditTask.value) {
         EditTaskView(
             task = remember { mutableStateOf(pickedTaskId.value) },
-            onDismissRequest = { expandedEditTask.value = false },
-            onClick = { }
+            onDismissRequest = { expandedEditTask.value = false }
         )
     }
 
@@ -128,23 +115,28 @@ fun TaskScreen(
                 month.value = it
                 listDays.value.clear()
                 listDays.value = viewModel.fillDaysList(it.get(Calendar.MONTH))
-                viewModel.date = patternFormatDate.format(it.time)
+                viewModel.date = it.time.dayAndMonth()
                 viewModel.onEvent(TasksEvent.ChangeDay)
             },
-            onDismissRequest = { expandedCalendarDialog.value = false }
+            onDismissRequest = { expandedCalendarDialog.value = false },
+            isNewTask = false
         )
     }
 
     Scaffold(
-        topBar = { CustomTopBarView(navController = navController, "Daily Tasks") },
+        topBar = { CustomTopBarView(
+            navController = navController,
+            stringResource(R.string.task_screen_toolbar_title)
+        ) },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = {
-                    navController.navigate(Screen.AddTaskScreen.route)
-                },
+                onClick = { navController.navigate(Screen.AddTaskScreen.route) },
                 backgroundColor = MaterialTheme.colors.primary,
             ) {
-                Icon(imageVector = Icons.Default.Add, "Add Task")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    stringResource(R.string.floating_button_description)
+                )
             }
         },
         scaffoldState = scaffoldState
@@ -157,47 +149,34 @@ fun TaskScreen(
                 Column(
                     modifier = Modifier
                         .weight(1f)
-                        .background(Color.Green)
                         .padding(start = 46.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     TextButton(
-                        modifier = Modifier.background(Color.Cyan),
                         onClick = { expandedCalendarDialog.value = true }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowDropDown,
                             modifier = Modifier
                                 .size(20.dp)
-                                .align(Alignment.CenterVertically)
-                                .background(Color.Blue),
-                            contentDescription = "Drop Down"
+                                .align(Alignment.CenterVertically),
+                            contentDescription = stringResource(R.string.dropdown_arrow_description)
                         )
                         Text(
-                            modifier = Modifier.background(Color.Red),
-                            text = patternFormatMonth.format(month.value.time),
+                            text = month.value.time.month(),
                             style = MaterialTheme.typography.h4,
                             color = MaterialTheme.colors.onBackground,
                             textAlign = Center
                         )
                     }
                 }
-                Column(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .background(Color.Yellow),
-                ) {
-                    IconButton(
-                        modifier = Modifier.background(Color.Yellow),
-                        onClick = {
-                            viewModel.onEvent(TasksEvent.ToggleOrderSection)
-                        },
-                    ) {
+                Column(modifier = Modifier.wrapContentSize()) {
+                    IconButton(onClick = { viewModel.onEvent(TasksEvent.ToggleOrderSection) }) {
                         Icon(
                             imageVector = Icons.Default.Sort,
                             modifier = Modifier.size(30.dp),
                             tint = MaterialTheme.colors.onBackground,
-                            contentDescription = "Sort"
+                            contentDescription = stringResource(R.string.sort_icon)
                         )
                     }
                 }
@@ -212,75 +191,30 @@ fun TaskScreen(
                         .fillMaxWidth()
                         .padding(vertical = 16.dp),
                     taskOrder = state.taskOrder,
-                    onOrderChange = {
-                        //viewModel.onEvent(TasksEvent.Order(task = , taskOrder = state.taskOrder))
-                        viewModel.onEvent(TasksEvent.Order(it))
-                    }
+                    onOrderChange = { viewModel.onEvent(TasksEvent.Order(it)) }
                 )
             }
 
-            //Spacer(modifier = Modifier.height(TaskListAppTheme.paddings.tinyPadding))
-
             LazyRow(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(Color.Yellow),
+                modifier = Modifier.fillMaxWidth(),
                 state = listState,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(listDays.value, key = { it.day }) { item ->
-                    /*if (item.day == 1) {
-                        Box(modifier = Modifier.size(width = ((screenWidthDp/2) - 42.5F).dp, height = 0.dp)) {  }
-                    }*/
                     CustomWeekDayView(
                         item,
                         modifier = Modifier
-                            /*.graphicsLayer {
-                                val value =
-                                    1 - (listState.layoutInfo.normalizedItemPosition(item.day).absoluteValue) * 0.15F
-                                alpha = value
-                                scaleX = value
-                                scaleY = value
-                            }*/
                             .clickable {
-                                //item.clicked.value = listState.layoutInfo.setItemClicked(item)
                                 month.value.set(Calendar.DAY_OF_MONTH, item.day)
-                                viewModel.date = patternFormatDate.format(month.value.time)
+                                viewModel.date = month.value.time.dayAndMonth()
                                 viewModel.onEvent(TasksEvent.ChangeDay)
                                 pointer.value = item.day
-
-                               /*scope.launch {
-                                    when(pointer.value) {
-                                        (listDays.value.size - 5) -> {
-                                            listState.scrollToItem(pointer.value)
-                                            listState.animateScrollBy(((-screenWidthPx/2) + 376).toFloat())
-                                        }
-                                        (listDays.value.size - 4) -> {
-                                            listState.scrollToItem(pointer.value - 1)
-                                            listState.animateScrollBy(((-screenWidthPx/2) + 640).toFloat())
-                                        }
-                                        else -> {
-                                            listState.scrollToItem(pointer.value + 1)
-                                            listState.scrollBy(((-screenWidthPx/2) + 112).toFloat())
-                                        }
-                                    }
-                                }*/
                             },
-                        boxModifier = Modifier
-                        /*.graphicsLayer {
-                                val value =
-                                    1 - (listState.layoutInfo.normalizedItemPosition(item.day).absoluteValue) * 0.15F
-                                scaleX = value
-                                scaleY = value
-                            }*/,
                         emptyBoxModifier = Modifier
-                            .size(width = ((screenWidthDp / 4) - 29.25).dp, height = 2.dp)
+                            .size(width = ((screenWidthDp / 4) - 29.25.dp), height = 2.dp)
                             .background(Color.Red),
                         pointer = pointer
                     )
-                    /*if (item.day == listDays.value.lastIndex + 1) {
-                        Box(modifier = Modifier.size(width = (85).dp, height = 0.dp)) {  }
-                    }*/
                 }
 
                 scope.launch {
@@ -288,15 +222,15 @@ fun TaskScreen(
                     when (month.value.get(Calendar.DAY_OF_MONTH)) {
                         (listDays.value.size - 5) -> {
                             listState.scrollToItem(month.value.get(Calendar.DAY_OF_MONTH))
-                            listState.scrollBy(((-screenWidthPx / 2) + 376).toFloat())
+                            listState.scrollBy(((-screenWidthPx / 2) + 376))
                         }
                         (listDays.value.size - 4) -> {
                             listState.scrollToItem(month.value.get(Calendar.DAY_OF_MONTH) - 1)
-                            listState.scrollBy(((-screenWidthPx / 2) + 640).toFloat())
+                            listState.scrollBy(((-screenWidthPx / 2) + 640))
                         }
                         else -> {
                             listState.scrollToItem(month.value.get(Calendar.DAY_OF_MONTH) + 1)
-                            listState.scrollBy(((-screenWidthPx / 2) + 112).toFloat())
+                            listState.scrollBy(((-screenWidthPx / 2) + 112))
                         }
                     }
                 }
@@ -304,53 +238,33 @@ fun TaskScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            LazyColumn(modifier = Modifier.fillMaxSize()) {
-                items(state.tasks) { task ->
-                    TaskItem(
-                        task = task,
-                        onClick = {
-                            expandedTaskMenu.value = true
-                            pickedTaskId.value = task
-                        }
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                }
-            }
-
-            /* if (state.tasks.isEmpty()) {
-                /*Box(
+            if (state.tasks.isEmpty()) {
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .align(Alignment.CenterHorizontally)
-                        .background(Color.Gray),
+                        .align(Alignment.CenterHorizontally),
                     contentAlignment = Alignment.Center
                 ) {
                     Column(
-                        modifier = Modifier,
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
-
                     ) {
                         Row(
                             modifier = Modifier
                                 .wrapContentSize()
-                                .background(Color.Red)
                                 .padding(bottom = 30.dp)
                         ) {
                             Text(
-                                text = "Ops! You don't have\nany tasks for today.",
+                                text = stringResource(R.string.empty_tasks_state),
                                 style = MaterialTheme.typography.body1,
                                 color = MaterialTheme.colors.onBackground
                             )
                         }
-                        Row(
-                            modifier = Modifier
-                                .wrapContentSize()
-                                .background(Color.Green)
-                        ) {
-                            Image(
+                        Row(modifier = Modifier.wrapContentSize()) {
+                            Icon(
                                 painter = painterResource(id = R.drawable.dr_sleeping_sloth),
-                                contentDescription = "Sleeping Sloth"
+                                tint = MaterialTheme.colors.primary,
+                                contentDescription = stringResource(R.string.sleeping_sloth_drawing)
                             )
                         }
                     }
@@ -358,19 +272,19 @@ fun TaskScreen(
             } else {
                 LazyColumn(modifier = Modifier.fillMaxSize()) {
                     items(state.tasks) { task ->
-                        TaskItem(
-                            task = task,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable {
+                        if (showCompletedTasks.value || !showCompletedTasks.value && task.state == "todo") {
+                            TaskItem(
+                                task = task,
+                                onClick = {
                                     expandedTaskMenu.value = true
+                                    pickedTaskId.value = task
                                 }
-                        )
-                        Log.i("teste", "aqui chegou")
-                        Spacer(modifier = Modifier.height(16.dp))
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
-                }*/
-            }*/
+                }
+            }
         }
     }
 }

@@ -2,25 +2,26 @@ package com.example.tasklist.feature_task.presentation.ui.theme
 
 import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
+import com.example.tasklist.feature_task.presentation.ui.theme.attr.*
 
-private val PurpleColorPalette = lightColors(
-    primary = DarkPurple,
-    onPrimary = LightPurple,
-    primaryVariant = Gray,
-    secondary = Gray,
-    onSecondary = LightPurple,
-    surface = LightPurple,
-    onSurface = DarkPurple,
-    background = LightPurple,
-    onBackground = DarkPurple
+val BlueColorPalette = lightColors(
+    primary = BluePrimary,
+    onPrimary = BlueTertiary,
+    primaryVariant = BlueSecondary,
+    secondary = BlueSecondary,
+    onSecondary = BlueTertiary,
+    surface = BlueTertiary,
+    onSurface = BluePrimary,
+    background = BlueTertiary,
+    onBackground = BluePrimary
 )
 
 @Composable
-fun PurpleTheme(
+fun BlueTheme(
     content: @Composable() () -> Unit
 ) {
     TaskListAppTheme(
-        colorPalette = PurpleColorPalette,
+        colorPalette = BlueColorPalette,
         content = content
     )
 }

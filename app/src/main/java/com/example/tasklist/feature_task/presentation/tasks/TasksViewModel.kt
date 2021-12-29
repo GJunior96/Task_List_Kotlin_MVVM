@@ -1,11 +1,12 @@
 package com.example.tasklist.feature_task.presentation.tasks
 
+import android.content.Context
 import android.os.Build
 import android.util.Log
-import androidx.compose.foundation.lazy.LazyListLayoutInfo
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.lifecycle.SavedStateHandle
+import androidx.compose.runtime.setValue
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.tasklist.feature_task.domain.model.InvalidTaskException
@@ -13,14 +14,13 @@ import com.example.tasklist.feature_task.domain.model.Task
 import com.example.tasklist.feature_task.domain.use_case.TaskUseCases
 import com.example.tasklist.feature_task.domain.util.OrderType
 import com.example.tasklist.feature_task.domain.util.TaskOrder
-import com.example.tasklist.feature_task.domain.util.TasksEvent
 import com.example.tasklist.feature_task.presentation.add_edit_task.AddEditTaskViewModel
+import com.example.tasklist.feature_task.presentation.settings.SettingsViewModel
+import com.example.tasklist.feature_task.presentation.settings.SwitchState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -30,7 +30,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class TasksViewModel @Inject constructor(
-    private val taskUseCases: TaskUseCases,
+    private val taskUseCases: TaskUseCases
 ) : ViewModel() {
 
     private val _state = mutableStateOf(TasksState())
@@ -110,7 +110,7 @@ class TasksViewModel @Inject constructor(
 
     private fun getTasks(taskOrder: TaskOrder) {
         getTasksJob?.cancel()
-        getTasksJob = taskUseCases.getTasks(taskDate = date, taskOrder = taskOrder)
+        getTasksJob = taskUseCases.getTasksByDate(taskDate = date, taskOrder = taskOrder)
             ?.onEach { tasks ->
                 _state.value = state.value.copy(
                     tasks = tasks,

@@ -11,13 +11,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.example.tasklist.feature_task.presentation.tasks.components.CustomCalendarView
 import com.example.tasklist.feature_task.presentation.ui.theme.Shapes
 import com.example.tasklist.feature_task.presentation.ui.theme.TaskListAppTheme
-import java.text.SimpleDateFormat
+import com.example.tasklist.R
 
 @Composable
 fun TimePicker(onTimeSelected: (String) -> Unit, onDismissRequest: () -> Unit) {
@@ -42,7 +42,7 @@ fun TimePicker(onTimeSelected: (String) -> Unit, onDismissRequest: () -> Unit) {
                     .padding(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 0.dp)
             ) {
                 Text(
-                    text = "Select Time",
+                    text = stringResource(R.string.select_time),
                     style = MaterialTheme.typography.h4,
                     color = MaterialTheme.colors.onPrimary
                 )
@@ -63,7 +63,7 @@ fun TimePicker(onTimeSelected: (String) -> Unit, onDismissRequest: () -> Unit) {
                     onClick = onDismissRequest
                 ) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         style = MaterialTheme.typography.button,
                         color = MaterialTheme.colors.onSurface
                     )
@@ -75,7 +75,7 @@ fun TimePicker(onTimeSelected: (String) -> Unit, onDismissRequest: () -> Unit) {
                     }
                 ) {
                     Text(
-                        text = "OK",
+                        text = stringResource(R.string.ok),
                         style = MaterialTheme.typography.button,
                         color = MaterialTheme.colors.onSurface
                     )

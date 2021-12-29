@@ -8,14 +8,14 @@ import com.example.tasklist.feature_task.domain.util.TaskOrder
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-class GetTasks(
+class GetTasksByDate(
     private val repository: TaskRepository
 ) {
     operator fun invoke(
         taskOrder: TaskOrder = TaskOrder.Hour(OrderType.Ascending),
         taskDate: String
     ): Flow<List<Task>>? {
-        return repository.getTasks(taskDate)?.map { tasks ->
+        return repository.getTasksByDate(taskDate)?.map { tasks ->
 
             when(taskOrder.orderType) {
                 is OrderType.Ascending -> {

@@ -1,6 +1,5 @@
 package com.example.tasklist.feature_task.presentation.tasks.components
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
@@ -9,30 +8,34 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.example.tasklist.R
 
 @ExperimentalComposeUiApi
 @Composable
 fun TaskOptionsMenu(onDismissRequest: () -> Unit, onClick: (String) -> Unit) {
     Dialog(onDismissRequest = { onDismissRequest() }, properties = DialogProperties(usePlatformDefaultWidth = false)) {
-        //Box(modifier = Modifier.fillMaxSize()) {
             Surface(
                 color = MaterialTheme.colors.background.copy(alpha = 0.57f),
-                modifier = Modifier.fillMaxSize().clickable { onDismissRequest() }
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clickable { onDismissRequest() }
             ) {
                 Card(
                     modifier = Modifier
                         .wrapContentSize()
                         .clip(MaterialTheme.shapes.large)
-                        .clickable {  },
+                        .clickable { },
                     shape = MaterialTheme.shapes.large,
                     backgroundColor = MaterialTheme.colors.primary
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp).wrapContentSize(),
+                        modifier = Modifier
+                            .padding(16.dp)
+                            .wrapContentSize(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Row(
@@ -43,7 +46,7 @@ fun TaskOptionsMenu(onDismissRequest: () -> Unit, onClick: (String) -> Unit) {
                                 onClick = { onClick("edit") }
                             ) {
                                 Text(
-                                    text = "Edit Task",
+                                    text = stringResource(R.string.edit_task),
                                     style = MaterialTheme.typography.body1,
                                     color = MaterialTheme.colors.surface
                                 )
@@ -64,7 +67,7 @@ fun TaskOptionsMenu(onDismissRequest: () -> Unit, onClick: (String) -> Unit) {
                                 onClick = { onClick("delete") }
                             ) {
                                 Text(
-                                    text = "Delete Task",
+                                    text = stringResource(R.string.delete_task),
                                     style = MaterialTheme.typography.body1,
                                     color = MaterialTheme.colors.surface
                                 )
@@ -83,10 +86,9 @@ fun TaskOptionsMenu(onDismissRequest: () -> Unit, onClick: (String) -> Unit) {
                         ) {
                             TextButton(
                                 onClick = { onClick("done") },
-                                //modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(
-                                    text = "Mark as Done",
+                                    text = stringResource(R.string.set_as_done),
                                     style = MaterialTheme.typography.body1,
                                     color = MaterialTheme.colors.surface
                                 )

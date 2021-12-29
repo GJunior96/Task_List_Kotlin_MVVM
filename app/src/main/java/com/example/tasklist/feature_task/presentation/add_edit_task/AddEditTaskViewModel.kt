@@ -18,7 +18,6 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
     private val taskUseCases: TaskUseCases,
-    savedStateHandle: SavedStateHandle
 ): ViewModel() {
     private val _taskDescription = mutableStateOf(TaskTextFieldState(
         hint = "Ex: Take out the garbage"
@@ -39,30 +38,6 @@ class AddEditTaskViewModel @Inject constructor(
     val eventFlow = _eventFlow.asSharedFlow()
 
     private var currentTaskId: Int? = null
-
-    init {
-        /*savedStateHandle.get<Int>("taskId")?.let { taskId ->
-            if(taskId != -1) {
-                viewModelScope.launch {
-                    taskUseCases.getTask(taskId)?.also { task ->
-                        currentTaskId = task.id
-                        _taskDescription.value = taskDescription.value.copy(
-                            text = task.content,
-                            isHintVisible = false
-                        )
-                        _taskDate.value = taskDate.value.copy(
-                            text = task.date,
-                            isHintVisible = false
-                        )
-                        _taskHour.value = taskHour.value.copy(
-                            text = task.hour,
-                            isHintVisible = false
-                        )
-                    }
-                }
-            }
-        }*/
-    }
 
     fun onEvent(event: AddEditTaskEvent) {
         when(event) {

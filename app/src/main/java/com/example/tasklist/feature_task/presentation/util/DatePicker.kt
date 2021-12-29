@@ -1,5 +1,6 @@
-package com.example.tasklist.feature_task.presentation.tasks.components
+package com.example.tasklist.feature_task.presentation.util
 
+import android.content.Context
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -11,18 +12,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.tasklist.feature_task.presentation.ui.theme.Shapes
 import com.example.tasklist.feature_task.presentation.ui.theme.TaskListAppTheme
-import java.text.SimpleDateFormat
 import java.util.*
+import com.example.tasklist.R
+import com.example.tasklist.feature_task.presentation.settings.SELECTED_THEME
+import com.example.tasklist.feature_task.presentation.settings.SHARED_PREFS
 
 @Composable
-fun DatePicker(onDateSelected: (Calendar) -> Unit, onDismissRequest: () -> Unit) {
+fun DatePicker(onDateSelected: (Calendar) -> Unit, onDismissRequest: () -> Unit, isNewTask: Boolean) {
     val selDate = remember { mutableStateOf(Calendar.getInstance()) }
-    val patternFormat = SimpleDateFormat("MMM dd yyyy")
 
     Dialog(onDismissRequest = { onDismissRequest() }, properties = DialogProperties()) {
         Column(
@@ -44,14 +48,14 @@ fun DatePicker(onDateSelected: (Calendar) -> Unit, onDismissRequest: () -> Unit)
                     .padding(16.dp)
             ) {
                 Text(
-                    text = "Select date",
+                    text = stringResource(R.string.select_date),
                     style = MaterialTheme.typography.h4,
                     color = MaterialTheme.colors.onPrimary
                 )
                 Spacer(modifier = Modifier.size(TaskListAppTheme.paddings.LargePadding))
 
                 Text(
-                    text = patternFormat.format(selDate.value.time),
+                    text = selDate.value.time.date(),
                     style = MaterialTheme.typography.h4,
                     color = MaterialTheme.colors.onPrimary
                 )
@@ -59,7 +63,7 @@ fun DatePicker(onDateSelected: (Calendar) -> Unit, onDismissRequest: () -> Unit)
 
             CustomCalendarView(onDateSelected = {
                 selDate.value = it
-            })
+            }, isNewTask = isNewTask)
 
             Spacer(modifier = Modifier.size(TaskListAppTheme.paddings.smallPadding))
 
@@ -68,11 +72,9 @@ fun DatePicker(onDateSelected: (Calendar) -> Unit, onDismissRequest: () -> Unit)
                     .align(Alignment.End)
                     .padding(bottom = 16.dp, end = 16.dp)
             ) {
-                TextButton(
-                    onClick = onDismissRequest
-                ) {
+                TextButton(onClick = onDismissRequest) {
                     Text(
-                        text = "Cancel",
+                        text = stringResource(R.string.cancel),
                         style = MaterialTheme.typography.button,
                         color = MaterialTheme.colors.onSurface
                     )
@@ -84,7 +86,7 @@ fun DatePicker(onDateSelected: (Calendar) -> Unit, onDismissRequest: () -> Unit)
                     }
                 ) {
                     Text(
-                        text = "OK",
+                        text = stringResource(R.string.ok),
                         style = MaterialTheme.typography.button,
                         color = MaterialTheme.colors.onSurface
                     )

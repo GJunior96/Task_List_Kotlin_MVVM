@@ -8,8 +8,12 @@ import kotlinx.coroutines.flow.Flow
 class TaskRepositoryImp(
     private val dao: TaskDao
 ) : TaskRepository {
-    override fun getTasks(date: String): Flow<List<Task>>? {
-        return dao.getTasks(date)
+    override fun getAllTasks(): Flow<List<Task>> {
+        return dao.getAllTasks()
+    }
+
+    override fun getTasksByDate(date: String): Flow<List<Task>>? {
+        return dao.getTasksByDate(date)
     }
 
     override suspend fun getTaskById(id: Int): Task? {

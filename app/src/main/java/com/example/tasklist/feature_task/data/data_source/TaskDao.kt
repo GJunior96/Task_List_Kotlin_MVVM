@@ -7,8 +7,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface TaskDao {
 
+    @Query("SELECT * FROM task")
+    fun getAllTasks(): Flow<List<Task>>
+
     @Query("SELECT * FROM task WHERE date = :date")
-    fun getTasks(date: String): Flow<List<Task>>?
+    fun getTasksByDate(date: String): Flow<List<Task>>?
 
     @Query("SELECT * FROM task WHERE id = :id")
     suspend fun getTaskById(id: Int): Task?

@@ -1,42 +1,31 @@
 package com.example.tasklist.feature_task.presentation.add_edit_task
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
-import com.example.tasklist.feature_task.presentation.add_edit_task.components.CustomButtomPicker
+import com.example.tasklist.R
+import com.example.tasklist.feature_task.presentation.add_edit_task.components.CustomButtonPicker
 import com.example.tasklist.feature_task.presentation.add_edit_task.components.CustomTextField
 import com.example.tasklist.feature_task.presentation.tasks.components.CustomTopBarView
-import com.example.tasklist.feature_task.presentation.tasks.components.DatePicker
+import com.example.tasklist.feature_task.presentation.util.DatePicker
 import com.example.tasklist.feature_task.presentation.util.TimePicker
+import com.example.tasklist.feature_task.presentation.util.dayAndMonth
 import kotlinx.coroutines.flow.collectLatest
-import java.text.SimpleDateFormat
-import java.util.*
 
 @Composable
 fun AddTaskScreen(
     navController: NavController,
     viewModel: AddEditTaskViewModel = hiltViewModel(),
-    screenWidthDp: Float
 ) {
-    screenWidthDp.dp
     val descriptionState = viewModel.taskDescription.value
     val dateState = viewModel.taskDate.value
     val hourState = viewModel.taskHour.value
-
-    var descriptionText by remember { mutableStateOf("") }
-
-    val date = Calendar.getInstance()
-    val dateFormatter = SimpleDateFormat("dd/MM")
 
     val expandedTimeDialog = remember { mutableStateOf(false) }
     val expandedDateDialog = remember { mutableStateOf(false) }
@@ -46,9 +35,10 @@ fun AddTaskScreen(
     if(expandedDateDialog.value) {
         DatePicker(
             onDateSelected = {
-                viewModel.onEvent(AddEditTaskEvent.EnteredDate(dateFormatter.format(it.time)))
+                viewModel.onEvent(AddEditTaskEvent.EnteredDate(it.time.dayAndMonth()))
             },
-            onDismissRequest = { expandedDateDialog.value = false }
+            onDismissRequest = { expandedDateDialog.value = false },
+            isNewTask = true
         )
     }
 
@@ -78,7 +68,10 @@ fun AddTaskScreen(
 
     Scaffold(
         scaffoldState = scaffoldState,
-        topBar = { CustomTopBarView(navController = navController, "New Task") }
+        topBar = { CustomTopBarView(
+            navController = navController,
+            stringResource(R.string.add_task_screen_toolbar_title)
+        ) }
     ) {
         Column(
             modifier = Modifier
@@ -87,45 +80,33 @@ fun AddTaskScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.Center
             ) {
                 CustomTextField(
                     text = descriptionState.text,
                     hint = descriptionState.hint,
-                    label = "Task Description",
-                    onValueChange = {
-                        viewModel.onEvent(AddEditTaskEvent.EnteredDescription(it))
-                    },
-                    onFocusChange = {
-                        viewModel.onEvent(AddEditTaskEvent.ChangeDescriptionFocus(it))
-                    },
+                    label = stringResource(R.string.task_description),
+                    onValueChange = { viewModel.onEvent(AddEditTaskEvent.EnteredDescription(it)) },
+                    onFocusChange = { viewModel.onEvent(AddEditTaskEvent.ChangeDescriptionFocus(it)) },
                     textStyle = MaterialTheme.typography.h3
                 )
             }
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
-            ) {
-                Column(modifier = Modifier
-                    .weight(1f)
-                    .background(Color.Red)) {
-                    CustomButtomPicker(
+            Row(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.weight(1f)) {
+                    CustomButtonPicker(
                         text = if(dateState.text.isBlank()) dateState.hint else dateState.text,
-                        label = "Task Date",
+                        label = stringResource(R.string.task_date),
                         textStyle = MaterialTheme.typography.h3,
                         enabled = true,
                         onClick = { expandedDateDialog.value = true }
                     )
                 }
 
-                Column(modifier = Modifier
-                    .weight(1f)
-                    .background(Color.Blue)) {
-                    CustomButtomPicker(
+                Column(modifier = Modifier.weight(1f)) {
+                    CustomButtonPicker(
                         text = if(hourState.text.isBlank()) hourState.hint else hourState.text,
-                        label = "Task Hour",
+                        label = stringResource(R.string.task_hour),
                         textStyle = MaterialTheme.typography.h3,
                         enabled = true,
                         onClick = { expandedTimeDialog.value = true }
@@ -145,7 +126,7 @@ fun AddTaskScreen(
                     onClick = { viewModel.onEvent(AddEditTaskEvent.SaveTask) }
                 ) {
                     Text(
-                        text = "Add New Task",
+                        text = stringResource(R.string.add_new_task),
                         style = MaterialTheme.typography.body1,
                         color = MaterialTheme.colors.onPrimary
                     )
